@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+      @apply font-sans;
+    }
+  }
+
+  @layer base {
+    @font-face {
+      font-family: 'Space Mono';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url(./assets/FontFamily/Space_Mono/SpaceMono-Regular.ttf) format('truetype');
+    }
+    @font-face {
+      font-family: 'Space Mono';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url(./assets/FontFamily/Space_Mono/SpaceMono-Bold.ttf) format('truetype');
+    }
+  }

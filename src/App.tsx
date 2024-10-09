@@ -1,8 +1,9 @@
+import Light_mode from "./components/Light_mode"
 
 function App() {
   return (
     <>
-      <h1 className="bg-red-300">App</h1>
+      <Light_mode />
     </>
   )
 }
