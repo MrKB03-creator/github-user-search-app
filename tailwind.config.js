@@ -13,9 +13,9 @@ export default {
         Lightmode_backgroundMain: "#F6F8FF",
         Lightmode_backgroundContainer: "#FEFEFE",
         Lightmode_Shadow: "rgb(70 96 187 / .1986)",
-        Darkmode_Primary: "#141D2F",
-        Darkmode_Secondary: "#1E2A47",
-        Darkmode_Tertiary: "#FFFFFF",
+        Darkmode_backgroundMain: "#141D2F",
+        Darkmode_backgroundContainer: "#1E2A47",
+        Darkmode_Text: "#FFFFFF",
       },
       fontFamily: {
         sans: ['Space Mono', 'sans-serif'],

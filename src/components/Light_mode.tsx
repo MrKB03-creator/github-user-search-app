@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   iconCompany,
   iconLocation,
@@ -5,9 +6,75 @@ import {
   iconSearch,
   iconTwitter,
   iconWebsite,
+  githubIcon,
 } from "../assets/Images";
 
 const Light_mode = () => {
+  const [username, setUsername] = useState("");
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userNotFound, setUserNotFound] = useState(false);
+
+  interface UserData {
+    avatar_url: string;
+    bio: string | null;
+    name: string;
+    login: string;
+    location: string | null;
+    twitter_username: string | null;
+    blog: string;
+    company: string | null;
+    public_repos: number;
+    followers: number;
+    following: number;
+    created_at: string;
+  }
+
+  // Function to fetch the user data
+  const fetchUserData = () => {
+    if (username) {
+      fetch(`https://api.github.com/users/${username}`)
+        .then((response) => {
+          if (response.status === 404) {
+        setUserNotFound(true);
+        setUserData(null);
+        return null;
+          } else {
+        return response.json();
+          }
+        })
+        .then((data) => {
+          if (data) {
+        setUserData(data);
+        setUserNotFound(false);
+          }
+        })
+        .catch((error) => {
+          console.error("Error: ", error);
+          setUserNotFound(true);
+        });
+    }
+  };
+
+  // Function to handle the input
+  const hanldleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(event.target.value);
+  };
+
+  // Function to handle the search button
+  const handleSearch = () => {
+    fetchUserData();
+  };
+
+  // Function to format the date
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
     <div className="flex justify-center items-center h-[100vh] bg-Lightmode_backgroundMain">
       <div className="lg:w-[730px] md:w-[563px] max-sm:w-[327px] h-auto flex flex-col">
@@ -16,12 +83,16 @@ const Light_mode = () => {
           <h1 className="font-bold text-[26px]leading-[38px] text-Lightmode_Text_Header">
             devfinder
           </h1>
-            <button className="flex flex-row gap-4 cursor-pointer">
-              <p className="text-[13px] font-bold leading-6 text-Lightmode_Text_subHeader hover:text-[#90A4D4]">
+          <button className="flex flex-row gap-4 cursor-pointer">
+            <p className="text-[13px] font-bold leading-6 text-Lightmode_Text_subHeader hover:text-[#90A4D4]">
               DARK
-              </p>
-              <img src={iconMoon} alt="moon icon" className="w-5 h-5 hover:text-[#90A4D4]" />
-            </button>
+            </p>
+            <img
+              src={iconMoon}
+              alt="moon icon"
+              className="w-5 h-5 hover:text-[#90A4D4]"
+            />
+          </button>
         </header>
 
         <main>
@@ -35,38 +106,71 @@ const Light_mode = () => {
               />
               <input
                 type="text"
+                value={username}
+                onChange={hanldleInput}
                 placeholder="Search GitHub username..."
                 className="w-[85%] text-[18px] text-Lightmode_Text_Paragraph font-normal outline-none max-sm:text-[12px]"
               />
             </div>
-            <p className="w-[20%] text-[#F74646] text-[15px] font-bold hidden max-sm:text-[12px]">
+            <p
+              className={`w-[20%] text-[#F74646] text-[15px] font-bold max-sm:text-[12px] ${
+                userNotFound ? 'block' : 'hidden'
+              }`}
+            >
               No results
             </p>
-            <button className="h-[50px] w-[20%] bg-Blue rounded-[10px] text-white hover:bg-[#60ABFF] max-sm:text-[14px] max-sm:w-[25%]">
+            <button
+              onClick={handleSearch}
+              className="h-[50px] w-[20%] bg-Blue rounded-[10px] text-white hover:bg-[#60ABFF] max-sm:text-[14px] max-sm:w-[25%]"
+            >
               Search
             </button>
           </section>
 
           {/* User Profile */}
+
           <section className="w-full bg-Lightmode_backgroundContainer rounded-[15px] p-[32px] shadow-lg shadow-Lightmode_Shadow flex flex-col lg:relative lg:h-[444px]">
             <div className="flex md:flex-row">
               <img
-                src="https://avatars.githubusercontent.com/u/583231?v=4"
+                src={userData?.avatar_url ? userData?.avatar_url : githubIcon}
                 alt="User Profile"
-                className="w-[117px] h-[117px] rounded-full mr-[37px] max-sm:w-[70px] max-sm:h-[70px] max-sm:mr-[19px]"
+                className={`${
+                  userData?.avatar_url
+                    ? "w-[117px] h-[117px]"
+                    : "w-[117px] h-[117px] rounded-none"
+                } rounded-full mr-[37px] max-sm:w-[70px] max-sm:h-[70px] max-sm:mr-[19px]`}
               />
               <div className="flex flex-col w-full ">
                 <div className="flex justify-between mb-[2px] lg:flex-row md:flex-col max-sm:flex-col ">
                   <div className="flex-block">
-                    <h1 className="text-[26px] font-bold leading-[38px] text-Lightmode_Text_Header max-sm:text-[16px] max-sm:leading-4">
-                      The Octocat
+                    <h1
+                      className={`text-[26px] font-bold leading-[38px] ${
+                        userData?.name
+                          ? "text-Lightmode_Text_Header"
+                          : "text-[#A5B4CD]"
+                      } max-sm:text-[16px] max-sm:leading-4`}
+                    >
+                      {userData?.name ? userData?.name : "Not Available"}
                     </h1>
-                    <h3 className="text-base text-Blue max-sm:text-[13px]">
-                      @octocat
+                    <h3
+                      className={`text-base ${
+                        userData?.name ? "text-Blue" : "text-[#A5B4CD]"
+                      } max-sm:text-[13px]`}
+                    >
+                      @{userData?.login ? userData.login : "Not Available"}
                     </h3>
                   </div>
-                  <p className="text-[15px] text-Lightmode_Text_Paragraph max-sm:text-[13px]">
-                    Joined 25 Jan 2011
+                  <p
+                    className={`text-[15px] ${
+                      userData?.created_at
+                        ? "text-Lightmode_Text_Paragraph"
+                        : "text-[#A5B4CD]"
+                    } max-sm:text-[13px]`}
+                  >
+                    Joined{" "}
+                    {userData?.created_at
+                      ? formatDate(userData.created_at)
+                      : "Not Available"}
                   </p>
                 </div>
               </div>
@@ -74,8 +178,14 @@ const Light_mode = () => {
 
             {/* User Profile Bio */}
             <div className="lg:absolute left-[25%] top-[22%]">
-              <h2 className="text-[15px] text-Lightmode_Text_Paragraph my-5">
-                This profile has no bio
+              <h2
+                className={`text-[15px] ${
+                  userData?.bio
+                    ? "text-Lightmode_Text_Paragraph"
+                    : "text-[#A5B4CD]"
+                } my-5`}
+              >
+                {userData?.bio ? userData.bio : "Not Available"}
               </h2>
 
               {/* User Profile Stats */}
@@ -84,24 +194,42 @@ const Light_mode = () => {
                   <h4 className="text-[13px] text-Lightmode_Text_Paragraph leading-6 max-sm:text-[11px]">
                     Repos
                   </h4>
-                  <p className="text-Lightmode_Text_Header text-[22px] font-bold max-sm:text-[16px]">
-                    0
+                  <p
+                    className={`${
+                      userData?.public_repos
+                        ? "text-Lightmode_Text_Header"
+                        : "text-[#A5B4CD]"
+                    } text-[22px] font-bold max-sm:text-[16px]`}
+                  >
+                    {userData?.public_repos ? userData.public_repos : "0"}
                   </p>
                 </div>
                 <div>
                   <h4 className="text-[13px] text-Lightmode_Text_Paragraph leading-6 max-sm:text-[11px]">
                     Followers
                   </h4>
-                  <p className="text-Lightmode_Text_Header text-[22px] font-bold max-sm:text-[16px]">
-                    2,294
+                  <p
+                    className={`${
+                      userData?.followers
+                        ? "text-Lightmode_Text_Header"
+                        : "text-[#A5B4CD]"
+                    } text-[22px] font-bold max-sm:text-[16px]`}
+                  >
+                    {userData?.followers ? userData.followers : "0"}
                   </p>
                 </div>
                 <div>
                   <h4 className="text-[13px] text-Lightmode_Text_Paragraph leading-6 max-sm:text-[11px]">
                     Following
                   </h4>
-                  <p className="text-Lightmode_Text_Header text-[22px] font-bold max-sm:text-[16px]">
-                    9
+                  <p
+                    className={`${
+                      userData?.following
+                        ? "text-Lightmode_Text_Header"
+                        : "text-[#A5B4CD]"
+                    } text-[22px] font-bold max-sm:text-[16px]`}
+                  >
+                    {userData?.following ? userData.following : "0"}
                   </p>
                 </div>
               </div>
@@ -110,23 +238,65 @@ const Light_mode = () => {
               <div className="w-full mt-[37px]">
                 <table className="flex flex-row justify-between max-sm:flex-col">
                   <tr>
-                    <td className="flex flex-row items-center gap-5 mb-[15px] max-sm:mb-[17px] text-Lightmode_Text_Paragraph">
+                    <td
+                      className={`flex flex-row items-center gap-5 mb-[15px] max-sm:mb-[17px] ${
+                        userData?.location
+                          ? "text-Lightmode_Text_Paragraph"
+                          : "text-[#A5B4CD]"
+                      }`}
+                    >
                       <img src={iconLocation} alt="icon Location" />
-                      <p>San Francisco</p>
+                      <p>
+                        {userData?.location
+                          ? userData.location
+                          : "Not Available"}
+                      </p>
                     </td>
-                    <td className="flex flex-row items-center gap-5 max-sm:mb-[17px] text-Lightmode_Text_Paragraph">
-                      <img src={iconTwitter} alt="icon Twitter" />
-                      <p>Not Available</p>
+                    <td
+                      className={`flex flex-row items-center gap-3.5 cursor-pointer max-sm:mb-[17px] ${
+                        userData?.blog
+                          ? "text-Lightmode_Text_Paragraph"
+                          : "text-[#A5B4CD]"
+                      }`}
+                    >
+                      <img src={iconWebsite} alt="icon Website" />
+                      <p>
+                        <a
+                          href={userData?.blog}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                        {userData?.blog ? userData.blog : "Not Available"}
+                        </a>
+                      </p>
                     </td>
                   </tr>
                   <tr>
-                    <td className="flex flex-row items-center gap-5 mb-[15px] cursor-pointer max-sm:mb-[17px] text-Lightmode_Text_Paragraph">
-                      <img src={iconWebsite} alt="icon Website" />
-                      <p>https://github.blog</p>
+                    <td
+                      className={`flex flex-row items-center gap-5 mb-[15px]  max-sm:mb-[17px] ${
+                        userData?.twitter_username
+                          ? "text-Lightmode_Text_Paragraph"
+                          : "text-[#A5B4CD] fill-[#A5B4CD]"
+                      }`}
+                    >
+                      <img src={iconTwitter} alt="icon Twitter" />
+                      <p>
+                        {userData?.twitter_username
+                          ? userData.twitter_username
+                          : "Not Available"}
+                      </p>
                     </td>
-                    <td className="flex flex-row items-center gap-5 max-sm:mb-[17px] text-Lightmode_Text_Paragraph">
+                    <td
+                      className={`flex flex-row items-center gap-5 max-sm:mb-[17px] ${
+                        userData?.company
+                          ? "text-Lightmode_Text_Paragraph fill-Lightmode_Text_Paragraph"
+                          : "text-[#A5B4CD] fill:[#A5B4CD]"
+                      }`}
+                    >
                       <img src={iconCompany} alt="icon Company" />
-                      <p>@github</p>
+                      <p>
+                        {userData?.company ? userData.company : "Not Available"}
+                      </p>
                     </td>
                   </tr>
                 </table>
